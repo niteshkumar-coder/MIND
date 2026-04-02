@@ -11,7 +11,7 @@ export function AdminLogin() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const adminEmail = 'niteshkumar9128ku@gmail.com';
-  const correctPassword = 'Localbuild12';
+  const correctPassword = 'N12N';
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
