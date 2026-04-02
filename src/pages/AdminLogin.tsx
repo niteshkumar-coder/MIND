@@ -45,7 +45,7 @@ export function AdminLogin() {
         navigate('/admin/dashboard');
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Login error:', err instanceof Error ? err.message : String(err));
       setError('Failed to log in. Please try again.');
     } finally {
       setLoading(false);

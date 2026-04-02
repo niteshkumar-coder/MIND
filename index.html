@@ -6,6 +6,40 @@
     <title>My Google AI Studio App</title>
   </head>
   <body>
+    <script>
+      // Prevent libraries from attempting to overwrite window.fetch if it's read-only
+      // This MUST be at the very top, before any modules are loaded.
+      (function() {
+        if (typeof window !== 'undefined') {
+          try {
+            var originalFetch = window.fetch;
+            if (originalFetch) {
+              Object.defineProperty(window, 'fetch', {
+                value: originalFetch,
+                writable: true,
+                configurable: true,
+                enumerable: true
+              });
+            }
+          } catch (e) {
+            console.warn('Note: window.fetch could not be made writable directly, attempting setter approach:', e);
+            try {
+              var originalFetch2 = window.fetch;
+              Object.defineProperty(window, 'fetch', {
+                get: function() { return originalFetch2; },
+                set: function() { 
+                  console.warn('Attempt to overwrite window.fetch was ignored to prevent a crash.');
+                },
+                configurable: true,
+                enumerable: true
+              });
+            } catch (e2) {
+              console.warn('Could not lock window.fetch with setter:', e2);
+            }
+          }
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

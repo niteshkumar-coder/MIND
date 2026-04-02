@@ -61,7 +61,7 @@ export function AdminDashboard() {
       setAppointments(data);
       setLoading(false);
     }, (error) => {
-      console.error("Firestore error:", error);
+      console.error("Firestore error:", error instanceof Error ? error.message : String(error));
       setLoading(false);
     });
 
@@ -83,7 +83,7 @@ export function AdminDashboard() {
       await deleteDoc(doc(db, 'appointments', deleteId));
       setDeleteId(null);
     } catch (error) {
-      console.error('Error deleting document:', error);
+      console.error('Error deleting document:', error instanceof Error ? error.message : String(error));
       alert('Failed to delete appointment.');
     }
   };
@@ -95,7 +95,7 @@ export function AdminDashboard() {
         status: newStatus
       });
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error('Error updating status:', error instanceof Error ? error.message : String(error));
     }
   };
 

@@ -35,15 +35,12 @@ export function BookAppointment() {
         });
       } catch (error) {
         const errInfo = {
-          error: error instanceof Error ? error.message : String(error),
+          errorMessage: error instanceof Error ? error.message : String(error),
           operationType: 'create',
           path,
-          authInfo: {
-            userId: auth.currentUser?.uid,
-            email: auth.currentUser?.email,
-          }
+          userId: auth.currentUser?.uid,
         };
-        console.error('Firestore Error: ', JSON.stringify(errInfo));
+        console.error('Firestore Error: ', errInfo);
         throw error;
       }
 
