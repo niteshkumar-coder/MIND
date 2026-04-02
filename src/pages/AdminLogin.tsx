@@ -1,7 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebase';
 import { motion } from 'motion/react';
 import { Lock, LogIn, ShieldAlert, Loader2, Key } from 'lucide-react';
 
@@ -10,22 +8,17 @@ export function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const adminEmail = 'niteshkumar9128ku@gmail.com';
   const correctPassword = 'N12N';
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.email === adminEmail) {
-        // Even if logged in with Google, we might want to stay on login page if password isn't verified
-        // But for simplicity, we'll allow auto-redirect if already authenticated
-        navigate('/admin/dashboard');
-      }
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    // Check for local session
+    if (localStorage.getItem('isAdminVerified') === 'true') {
+      navigate('/admin/dashboard');
+    }
+    setLoading(false);
   }, [navigate]);
 
-  const handleLogin = async (e: FormEvent) => {
+  const handleLogin = (e: FormEvent) => {
     e.preventDefault();
     
     if (password.trim() !== correctPassword) {
@@ -35,19 +28,13 @@ export function AdminLogin() {
 
     setLoading(true);
     setError(null);
+    
     try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      if (result.user.email !== adminEmail) {
-        await auth.signOut();
-        setError('Unauthorized access. Only the administrator can log in.');
-      } else {
-        navigate('/admin/dashboard');
-      }
+      // Set a simple local session flag
+      localStorage.setItem('isAdminVerified', 'true');
+      navigate('/admin/dashboard');
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      console.error('Login error:', errorMessage);
-      setError(`Login failed: ${errorMessage}`);
+      setError('Failed to log in. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { db } from '../firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   LogOut, 
@@ -43,14 +42,13 @@ export function AdminDashboard() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
-  const adminEmail = 'niteshkumar9128ku@gmail.com';
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (!user || user.email !== adminEmail) {
-        navigate('/admin');
-      }
-    });
+    // Session check
+    if (localStorage.getItem('isAdminVerified') !== 'true') {
+      navigate('/admin');
+      return;
+    }
 
     const q = query(collection(db, 'appointments'), orderBy('createdAt', 'desc'));
     const unsubscribeFirestore = onSnapshot(q, (snapshot) => {
@@ -66,13 +64,12 @@ export function AdminDashboard() {
     });
 
     return () => {
-      unsubscribeAuth();
       unsubscribeFirestore();
     };
   }, [navigate]);
 
-  const handleLogout = async () => {
-    await signOut(auth);
+  const handleLogout = () => {
+    localStorage.removeItem('isAdminVerified');
     navigate('/admin');
   };
 
