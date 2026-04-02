@@ -1,0 +1,7 @@
+{
+  "name": "MindDental Clinic",
+  "description": "A modern, professional dental clinic website for MindDental Clinic, featuring appointment booking and WhatsApp integration.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}

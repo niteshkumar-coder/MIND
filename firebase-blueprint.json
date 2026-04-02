@@ -1,0 +1,49 @@
+{
+  "entities": {
+    "Appointment": {
+      "title": "Appointment",
+      "description": "A dental clinic appointment booking.",
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string",
+          "description": "The full name of the patient."
+        },
+        "mobileNumber": {
+          "type": "string",
+          "description": "The mobile number of the patient."
+        },
+        "appointmentDate": {
+          "type": "string",
+          "format": "date",
+          "description": "The date of the appointment."
+        },
+        "appointmentTime": {
+          "type": "string",
+          "description": "The time of the appointment."
+        },
+        "problem": {
+          "type": "string",
+          "description": "The problem or message from the patient."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "completed"],
+          "description": "The status of the appointment."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the appointment was booked."
+        }
+      },
+      "required": ["fullName", "mobileNumber", "appointmentDate", "appointmentTime"]
+    }
+  },
+  "firestore": {
+    "/appointments/{appointmentId}": {
+      "schema": "Appointment",
+      "description": "Collection of dental clinic appointments."
+    }
+  }
+}

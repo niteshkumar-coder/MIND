@@ -1,0 +1,49 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: appointments
+// Document ID: {appointmentId}
+// Fields:
+//   - fullName: string (required) - Patient's full name
+//   - mobileNumber: string (required) - Patient's mobile number
+//   - appointmentDate: string (required) - Date of appointment
+//   - appointmentTime: string (required) - Time of appointment
+//   - problem: string (optional) - Patient's problem/message
+//   - status: string (required) - Appointment status (pending/completed)
+//   - createdAt: timestamp (required) - Creation timestamp
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidAppointment(data) {
+      return data.fullName is string && data.fullName.size() > 0 && data.fullName.size() < 100 &&
+             data.mobileNumber is string && data.mobileNumber.size() >= 10 && data.mobileNumber.size() <= 20 &&
+             data.appointmentDate is string &&
+             data.appointmentTime is string &&
+             data.status in ['pending', 'completed'] &&
+             data.createdAt is timestamp &&
+             (!('problem' in data) || (data.problem is string && data.problem.size() < 1000));
+    }
+
+    match /appointments/{appointmentId} {
+      // Allow anyone to create an appointment (public booking)
+      allow create: if isValidAppointment(request.resource.data);
+      
+      // Only authenticated admins can read/list appointments
+      // For this simple app, we'll allow the default admin (user email)
+      allow read, list: if isAuthenticated() && 
+        (request.auth.token.email == "niteshkumar9128ku@gmail.com" && request.auth.token.email_verified == true);
+      
+      allow update, delete: if isAuthenticated() && 
+        (request.auth.token.email == "niteshkumar9128ku@gmail.com" && request.auth.token.email_verified == true);
+    }
+  }
+}
