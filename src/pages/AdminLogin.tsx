@@ -45,8 +45,9 @@ export function AdminLogin() {
         navigate('/admin/dashboard');
       }
     } catch (err) {
-      console.error('Login error:', err instanceof Error ? err.message : String(err));
-      setError('Failed to log in. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error('Login error:', errorMessage);
+      setError(`Login failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -76,9 +77,14 @@ export function AdminLogin() {
         </div>
 
         {error && (
-          <div className="mb-6 flex items-center gap-3 rounded-2xl bg-red-50 p-4 text-sm font-bold text-red-600">
-            <ShieldAlert className="h-5 w-5 shrink-0" />
-            {error}
+          <div className="mb-6 space-y-2">
+            <div className="flex items-center gap-3 rounded-2xl bg-red-50 p-4 text-sm font-bold text-red-600">
+              <ShieldAlert className="h-5 w-5 shrink-0" />
+              {error}
+            </div>
+            <p className="px-2 text-xs font-medium text-gray-500">
+              Tip: If popups are blocked, try opening the app in a new tab.
+            </p>
           </div>
         )}
 
