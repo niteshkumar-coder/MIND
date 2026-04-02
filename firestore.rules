@@ -28,6 +28,7 @@ service cloud.firestore {
              data.mobileNumber is string && data.mobileNumber.size() >= 10 && data.mobileNumber.size() <= 20 &&
              data.appointmentDate is string &&
              data.appointmentTime is string &&
+             data.dateOfBirth is string &&
              data.status in ['pending', 'completed'] &&
              data.createdAt is timestamp &&
              (!('problem' in data) || (data.problem is string && data.problem.size() < 1000));

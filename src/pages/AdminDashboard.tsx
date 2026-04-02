@@ -29,6 +29,7 @@ interface Appointment {
   mobileNumber: string;
   appointmentDate: string;
   appointmentTime: string;
+  dateOfBirth: string;
   problem: string;
   status: 'pending' | 'completed';
   createdAt: any;
@@ -254,6 +255,7 @@ export function AdminDashboard() {
                 <thead>
                   <tr className="border-b border-gray-100 text-xs font-black uppercase tracking-widest text-gray-400">
                     <th className="px-4 py-6">Patient Details</th>
+                    <th className="px-4 py-6">DOB</th>
                     <th className="px-4 py-6">Schedule</th>
                     <th className="px-4 py-6">Status</th>
                     <th className="px-4 py-6">Problem</th>
@@ -285,6 +287,9 @@ export function AdminDashboard() {
                                 </div>
                               </div>
                             </div>
+                          </td>
+                          <td className="px-4 py-6">
+                            <div className="font-black text-gray-900">{app.dateOfBirth}</div>
                           </td>
                           <td className="px-4 py-6">
                             <div className="font-black text-gray-900">{app.appointmentDate}</div>

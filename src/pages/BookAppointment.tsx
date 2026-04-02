@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Calendar, Clock, User, Phone, MessageSquare, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, User, Phone, MessageSquare, CheckCircle2, Loader2, ArrowRight, Download, Baby } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import { jsPDF } from 'jspdf';
 
 export function BookAppointment() {
   const [formData, setFormData] = useState({
@@ -10,6 +11,7 @@ export function BookAppointment() {
     mobileNumber: '',
     appointmentDate: '',
     appointmentTime: '',
+    dateOfBirth: '',
     problem: ''
   });
 
@@ -18,6 +20,51 @@ export function BookAppointment() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(37, 99, 235); // blue-600
+    doc.text('MIND DENTAL CLINIC PATNA', 105, 20, { align: 'center' });
+    
+    doc.setDrawColor(209, 213, 219); // gray-300
+    doc.line(20, 30, 190, 30);
+    
+    // Appointment Details
+    doc.setFontSize(16);
+    doc.setTextColor(17, 24, 39); // gray-900
+    doc.text('Appointment Receipt', 20, 45);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(75, 85, 99); // gray-600
+    
+    const details = [
+      ['Patient Name:', formData.fullName],
+      ['Date of Birth:', formData.dateOfBirth],
+      ['Appointment Date:', formData.appointmentDate],
+      ['Appointment Time:', formData.appointmentTime],
+      ['Problem:', formData.problem || 'Not specified'],
+    ];
+    
+    let yPos = 60;
+    details.forEach(([label, value]) => {
+      doc.setFont('helvetica', 'bold');
+      doc.text(label, 20, yPos);
+      doc.setFont('helvetica', 'normal');
+      doc.text(value, 65, yPos);
+      yPos += 12;
+    });
+    
+    // Footer
+    doc.line(20, 150, 190, 150);
+    doc.setFontSize(10);
+    doc.text('Thank you for choosing Mind Dental Clinic Patna.', 105, 160, { align: 'center' });
+    doc.text('Please bring this receipt with you on your visit.', 105, 167, { align: 'center' });
+    
+    doc.save(`Appointment_${formData.fullName.replace(/\s+/g, '_')}.pdf`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,10 +91,14 @@ export function BookAppointment() {
         throw error;
       }
 
-      // 2. Prepare WhatsApp Message
+      // 2. Generate PDF
+      generatePDF();
+
+      // 3. Prepare WhatsApp Message
       const whatsappNumber = '9142645990';
       const message = `New Appointment Booking:
 Name: ${formData.fullName}
+DOB: ${formData.dateOfBirth}
 Mobile: ${formData.mobileNumber}
 Date: ${formData.appointmentDate}
 Time: ${formData.appointmentTime}
@@ -55,13 +106,13 @@ Problem: ${formData.problem || 'Not specified'}`;
 
       const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-      // 3. Success State
+      // 4. Success State
       setIsSuccess(true);
       
-      // 4. Redirect to WhatsApp after a short delay
+      // 5. Redirect to WhatsApp after a short delay
       setTimeout(() => {
         window.open(whatsappUrl, '_blank');
-      }, 1500);
+      }, 3000);
 
     } catch (error) {
       console.error('Error booking appointment:', error);
@@ -83,12 +134,21 @@ Problem: ${formData.problem || 'Not specified'}`;
             <CheckCircle2 className="h-12 w-12" />
           </div>
           <h2 className="mb-4 text-3xl font-bold text-gray-900">Booking Successful!</h2>
-          <p className="mb-8 text-gray-600">
-            Your appointment request has been received. We are now redirecting you to WhatsApp to confirm your booking.
+          <p className="mb-6 text-gray-600">
+            Your appointment request has been received. Your receipt has been downloaded automatically.
           </p>
+          
+          <button
+            onClick={generatePDF}
+            className="mb-8 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 py-3 text-sm font-bold text-gray-700 transition-all hover:bg-gray-200"
+          >
+            <Download className="h-4 w-4" />
+            Download Receipt Again
+          </button>
+
           <div className="flex items-center justify-center gap-2 text-sm font-medium text-blue-600">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Redirecting to WhatsApp...
+            Redirecting to WhatsApp for final confirmation...
           </div>
         </motion.div>
       </div>
@@ -172,6 +232,21 @@ Problem: ${formData.problem || 'Not specified'}`;
                     value={formData.mobileNumber}
                     onChange={handleChange}
                     placeholder="Enter your mobile number"
+                    className="w-full rounded-xl border border-gray-200 py-3.5 pl-12 pr-4 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-bold text-gray-700">Date of Birth</label>
+                <div className="relative">
+                  <Baby className="absolute top-3.5 left-4 h-5 w-5 text-gray-400" />
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    required
+                    value={formData.dateOfBirth}
+                    onChange={handleChange}
                     className="w-full rounded-xl border border-gray-200 py-3.5 pl-12 pr-4 outline-none transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
