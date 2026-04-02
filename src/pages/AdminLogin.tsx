@@ -28,7 +28,7 @@ export function AdminLogin() {
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     
-    if (password !== correctPassword) {
+    if (password.trim() !== correctPassword) {
       setError('Incorrect password. Please try again.');
       return;
     }
